@@ -10,10 +10,30 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model test_table {
+model User {
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  username        String    @unique
+  password        String
+  type            UserType
+  isActive        Boolean   @default(true)
+  expirationDate  DateTime
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  refreshToken    String?
+  sessions        Session[]
+}
+
+enum UserType {
+  ADMIN
+  USER
+}
+
+model Session {
   id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 }
