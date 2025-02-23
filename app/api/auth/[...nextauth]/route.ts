@@ -1,6 +1,6 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, UserType } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
@@ -18,19 +18,19 @@ const authOptions: NextAuthOptions = {
           return null;
         }
 
-        const admin = await prisma.admin.findUnique({
+        const user = await prisma.user.findUnique({
           where: {
             username: credentials.username,
           },
         });
 
-        if (!admin) {
+        if (!user) {
           return null;
         }
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
-          admin.password
+          user.password
         );
 
         if (!isPasswordValid) {
@@ -38,8 +38,9 @@ const authOptions: NextAuthOptions = {
         }
 
         return {
-          id: admin.id,
-          username: admin.username,
+          id: user.id.toString(),
+          username: user.username,
+          type: user.type,
         };
       },
     }),
@@ -57,6 +58,7 @@ const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.username = user.username;
+        token.userType = user.type;
       }
       return token;
     },
@@ -64,11 +66,11 @@ const authOptions: NextAuthOptions = {
       if (session?.user) {
         session.user.id = token.id as string;
         session.user.username = token.username as string;
+        session.user.type = token.type as UserType;
       }
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Always redirect to dashboard after login
       return `${baseUrl}/dashboard`;
     },
   },
