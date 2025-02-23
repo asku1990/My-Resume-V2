@@ -1,5 +1,5 @@
 import '@/styles/global.css';
-import { inter } from '@/components/fonts';
+import { inter } from '@/styles/fonts';
 import { NextAuthProvider } from "@/providers/auth";
 
 export default function RootLayout({
