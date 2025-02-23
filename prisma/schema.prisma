@@ -37,3 +37,9 @@ model Session {
   expiresAt DateTime
   createdAt DateTime @default(now())
 }
+
+model Admin {
+  id       String @id @default(cuid())
+  username String @unique
+  password String
+}
