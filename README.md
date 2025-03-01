@@ -52,3 +52,5 @@ To run this project locally, you'll need:
 
 
 just testing github desktop
+
+just testing cursor git client
