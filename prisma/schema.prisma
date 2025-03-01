@@ -10,29 +10,60 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum ActionType {
+  LOGIN
+  LOGOUT
+  CREATE
+  UPDATE
+  DELETE
+  PASSWORD_CHANGE
+  FAILED_LOGIN_ATTEMPT
+  TOKEN_EXPIRED
+}
+
+enum EntityType {
+  USER
+  // Add other entity types as your application grows
+}
+
+model AuditLog {
+  id          String      @id @default(uuid())
+  actorId     String?    // Who performed the action (nullable for unauthenticated actions)
+  actor       User?       @relation("UserAuditLogs", fields: [actorId], references: [id])
+  actionType  ActionType
+  entityType  EntityType
+  entityId    String      // What was affected
+  details     Json?      // Additional details about the action
+  ipAddress   String?    // IP address of the user
+  userAgent   String?    // User agent information
+  status      String     // SUCCESS, FAILURE, etc.
+  metadata    Json?      // Any additional metadata including token info:
+                        // - tokenId: string (UUID)
+                        // - expiresAt: DateTime
+                        // - lastUsed: DateTime
+                        // - isRevoked: boolean
+  createdAt   DateTime   @default(now())
+
+  @@index([actorId])
+  @@index([actionType])
+  @@index([entityType])
+  @@index([createdAt])
+}
+
 model User {
-  id              Int       @id @default(autoincrement())
-  username        String    @unique
+  id              String       @id @default(uuid())
+  username        String       @unique
   password        String
   type            UserType
-  isActive        Boolean   @default(true)
+  isActive        Boolean      @default(true)
   expirationDate  DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  refreshToken    String?
-  sessions        Session[]
+  lastLogin       DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  auditLogs       AuditLog[]  @relation("UserAuditLogs")
 }
 
 enum UserType {
   ADMIN
   USER
-}
-
-model Session {
-  id        Int      @id @default(autoincrement())
-  token     String   @unique
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  expiresAt DateTime
-  createdAt DateTime @default(now())
 }
