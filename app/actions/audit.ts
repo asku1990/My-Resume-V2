@@ -2,18 +2,15 @@
 
 import { PrismaClient, ActionType, EntityType } from '@prisma/client';
 import { headers } from 'next/headers';
+import { 
+  AuditActionParams, 
+  AuditUserLoginFn,
+  AuditUserLogoutFn,
+  AuditUserActionFn,
+  AuditFailedLoginAttemptFn
+} from '@/types/audit';
 
 const prisma = new PrismaClient();
-
-interface AuditActionParams {
-  actionType: ActionType;
-  entityType: EntityType;
-  entityId: string;
-  actorId?: string;
-  details?: any;
-  status?: string;
-  metadata?: any;
-}
 
 async function createAuditEntry({
   actionType,
@@ -49,7 +46,7 @@ async function createAuditEntry({
 }
 
 // Server actions for auditing
-export async function auditUserLogin(userId: string, success: boolean, metadata?: any) {
+export const auditUserLogin: AuditUserLoginFn = async (userId, success, metadata) => {
   return createAuditEntry({
     actionType: ActionType.LOGIN,
     entityType: EntityType.USER,
@@ -60,7 +57,7 @@ export async function auditUserLogin(userId: string, success: boolean, metadata?
   });
 }
 
-export async function auditUserLogout(userId: string, metadata?: any) {
+export const auditUserLogout: AuditUserLogoutFn = async (userId, metadata) => {
   return createAuditEntry({
     actionType: ActionType.LOGOUT,
     entityType: EntityType.USER,
@@ -70,13 +67,13 @@ export async function auditUserLogout(userId: string, metadata?: any) {
   });
 }
 
-export async function auditUserAction(
-  actionType: ActionType,
-  actorId: string,
-  targetEntityType: EntityType,
-  targetEntityId: string,
-  metadata?: any
-) {
+export const auditUserAction: AuditUserActionFn = async (
+  actionType,
+  actorId,
+  targetEntityType,
+  targetEntityId,
+  metadata
+) => {
   return createAuditEntry({
     actionType,
     entityType: targetEntityType,
@@ -86,7 +83,7 @@ export async function auditUserAction(
   });
 }
 
-export async function auditFailedLoginAttempt(username: string, details?: any) {
+export const auditFailedLoginAttempt: AuditFailedLoginAttemptFn = async (username, details) => {
   return createAuditEntry({
     actionType: ActionType.FAILED_LOGIN_ATTEMPT,
     entityType: EntityType.USER,
