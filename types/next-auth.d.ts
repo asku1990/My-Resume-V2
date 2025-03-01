@@ -14,11 +14,14 @@ declare module "next-auth" {
     id: string;
     username: string;
     type: UserType;
+    tokenId: string;
   }
 
   interface JWT {
     id: string;
     username: string;
     type: UserType;
+    userType: UserType;
+    tokenId: string;
   }
 }
