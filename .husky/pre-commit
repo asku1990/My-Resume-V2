@@ -1,5 +1,9 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# Run type-check and lint-staged
+# Check if formatting would make changes
+echo "🔍 Checking formatting..."
+pnpm format:check || (echo "❌ Formatting issues found. Please run 'pnpm format' and stage your changes." && exit 1)
+
+# Run other checks
 pnpm type-check && pnpm lint-staged
