@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+# Full checks before push (except formatting)
+echo "🔍 Running full codebase checks before push..."
+pnpm lint && pnpm type-check && pnpm build
