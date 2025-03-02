@@ -1,13 +1,13 @@
-import "next-auth";
-import { UserType } from "@prisma/client";
+import 'next-auth';
+import { UserType } from '@prisma/client';
 
-declare module "next-auth" {
+declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
       username: string;
       type: UserType;
-    }
+    };
   }
 
   interface User {
