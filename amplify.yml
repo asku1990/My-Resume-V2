@@ -5,9 +5,6 @@ applications:
         preBuild:
           commands:
             - npm install -g pnpm
-            - echo "NEXTAUTH_URL=$NEXTAUTH_URL" >> .env
-            - echo "NEXTAUTH_SECRET=$NEXTAUTH_SECRET" >> .env
-            - echo "DATABASE_URL=$DATABASE_URL" >> .env
             - pnpm install
             - pnpm prisma generate
         build:
