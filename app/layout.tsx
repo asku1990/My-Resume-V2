@@ -1,6 +1,6 @@
 import '@/styles/global.css';
 import { inter } from '@/styles/fonts';
-import { NextAuthProvider } from "@/providers/auth";
+import { NextAuthProvider } from '@/providers/auth';
 
 export default function RootLayout({
   children,
@@ -11,9 +11,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${inter.className} antialiased`}>
         <NextAuthProvider>
-          <div className="min-h-screen bg-gray-50">
-            {children}
-          </div>
+          <div className="min-h-screen bg-gray-50">{children}</div>
         </NextAuthProvider>
       </body>
     </html>

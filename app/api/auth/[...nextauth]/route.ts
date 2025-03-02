@@ -1,8 +1,12 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaClient, UserType } from "@prisma/client";
-import bcrypt from "bcryptjs";
-import { auditUserLogin, auditFailedLoginAttempt, auditUserLogout } from "@/app/actions/audit";
+import NextAuth, { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import { PrismaClient, UserType } from '@prisma/client';
+import bcrypt from 'bcryptjs';
+import {
+  auditUserLogin,
+  auditFailedLoginAttempt,
+  auditUserLogout,
+} from '@/app/actions/audit';
 import { headers } from 'next/headers';
 import crypto from 'crypto';
 
@@ -11,10 +15,10 @@ const prisma = new PrismaClient();
 const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: "Credentials",
+      name: 'Credentials',
       credentials: {
-        username: { label: "Username", type: "text" },
-        password: { label: "Password", type: "password" },
+        username: { label: 'Username', type: 'text' },
+        password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.username || !credentials?.password) {
@@ -29,7 +33,7 @@ const authOptions: NextAuthOptions = {
 
         if (!user) {
           await auditFailedLoginAttempt(credentials.username, {
-            reason: "User not found"
+            reason: 'User not found',
           });
           return null;
         }
@@ -41,7 +45,7 @@ const authOptions: NextAuthOptions = {
 
         if (!isPasswordValid) {
           await auditFailedLoginAttempt(credentials.username, {
-            reason: "Invalid password"
+            reason: 'Invalid password',
           });
           return null;
         }
@@ -65,7 +69,7 @@ const authOptions: NextAuthOptions = {
           expiresAt,
           isRevoked: false,
           userAgent,
-          ipAddress: ip
+          ipAddress: ip,
         });
 
         return {
@@ -79,10 +83,10 @@ const authOptions: NextAuthOptions = {
   ],
   secret: process.env.NEXTAUTH_SECRET,
   pages: {
-    signIn: "/login",
+    signIn: '/login',
   },
   session: {
-    strategy: "jwt",
+    strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
@@ -114,7 +118,7 @@ const authOptions: NextAuthOptions = {
         await auditUserLogout(token.id as string, {
           tokenId: token.tokenId,
           isRevoked: true,
-          revokedAt: new Date()
+          revokedAt: new Date(),
         });
       }
     },

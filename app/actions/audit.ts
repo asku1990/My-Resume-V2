@@ -2,12 +2,12 @@
 
 import { PrismaClient, ActionType, EntityType } from '@prisma/client';
 import { headers } from 'next/headers';
-import { 
-  AuditActionParams, 
+import {
+  AuditActionParams,
   AuditUserLoginFn,
   AuditUserLogoutFn,
   AuditUserActionFn,
-  AuditFailedLoginAttemptFn
+  AuditFailedLoginAttemptFn,
 } from '@/types/audit';
 
 const prisma = new PrismaClient();
@@ -46,7 +46,11 @@ async function createAuditEntry({
 }
 
 // Server actions for auditing
-export const auditUserLogin: AuditUserLoginFn = async (userId, success, metadata) => {
+export const auditUserLogin: AuditUserLoginFn = async (
+  userId,
+  success,
+  metadata
+) => {
   return createAuditEntry({
     actionType: ActionType.LOGIN,
     entityType: EntityType.USER,
@@ -55,7 +59,7 @@ export const auditUserLogin: AuditUserLoginFn = async (userId, success, metadata
     status: success ? 'SUCCESS' : 'FAILURE',
     metadata,
   });
-}
+};
 
 export const auditUserLogout: AuditUserLogoutFn = async (userId, metadata) => {
   return createAuditEntry({
@@ -65,7 +69,7 @@ export const auditUserLogout: AuditUserLogoutFn = async (userId, metadata) => {
     actorId: userId,
     metadata,
   });
-}
+};
 
 export const auditUserAction: AuditUserActionFn = async (
   actionType,
@@ -81,9 +85,12 @@ export const auditUserAction: AuditUserActionFn = async (
     actorId,
     metadata,
   });
-}
+};
 
-export const auditFailedLoginAttempt: AuditFailedLoginAttemptFn = async (username, details) => {
+export const auditFailedLoginAttempt: AuditFailedLoginAttemptFn = async (
+  username,
+  details
+) => {
   return createAuditEntry({
     actionType: ActionType.FAILED_LOGIN_ATTEMPT,
     entityType: EntityType.USER,
@@ -92,4 +99,4 @@ export const auditFailedLoginAttempt: AuditFailedLoginAttemptFn = async (usernam
     status: 'FAILURE',
     details,
   });
-} 
+};

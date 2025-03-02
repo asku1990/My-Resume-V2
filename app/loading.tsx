@@ -4,4 +4,4 @@ export default function Loading() {
       <div className="animate-pulse">Loading...</div>
     </div>
   );
-} 
+}
