@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,6 +5,39 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model AuditLog {
+  id         String     @id @default(uuid())
+  actorId    String?
+  actionType ActionType
+  entityType EntityType
+  entityId   String
+  details    Json?
+  ipAddress  String?
+  userAgent  String?
+  status     String
+  metadata   Json?
+  createdAt  DateTime   @default(now())
+  actor      User?      @relation("UserAuditLogs", fields: [actorId], references: [id])
+
+  @@index([actorId])
+  @@index([actionType])
+  @@index([entityType])
+  @@index([createdAt])
+}
+
+model User {
+  id             String     @id @default(uuid())
+  username       String     @unique
+  password       String
+  type           UserType
+  isActive       Boolean    @default(true)
+  expirationDate DateTime?
+  lastLogin      DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  auditLogs      AuditLog[] @relation("UserAuditLogs")
 }
 
 enum ActionType {
@@ -23,44 +53,6 @@ enum ActionType {
 
 enum EntityType {
   USER
-  // Add other entity types as your application grows
-}
-
-model AuditLog {
-  id          String      @id @default(uuid())
-  actorId     String?    // Who performed the action (nullable for unauthenticated actions)
-  actor       User?       @relation("UserAuditLogs", fields: [actorId], references: [id])
-  actionType  ActionType
-  entityType  EntityType
-  entityId    String      // What was affected
-  details     Json?      // Additional details about the action
-  ipAddress   String?    // IP address of the user
-  userAgent   String?    // User agent information
-  status      String     // SUCCESS, FAILURE, etc.
-  metadata    Json?      // Any additional metadata including token info:
-                        // - tokenId: string (UUID)
-                        // - expiresAt: DateTime
-                        // - lastUsed: DateTime
-                        // - isRevoked: boolean
-  createdAt   DateTime   @default(now())
-
-  @@index([actorId])
-  @@index([actionType])
-  @@index([entityType])
-  @@index([createdAt])
-}
-
-model User {
-  id              String       @id @default(uuid())
-  username        String       @unique
-  password        String
-  type            UserType
-  isActive        Boolean      @default(true)
-  expirationDate  DateTime?
-  lastLogin       DateTime?
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
-  auditLogs       AuditLog[]  @relation("UserAuditLogs")
 }
 
 enum UserType {
