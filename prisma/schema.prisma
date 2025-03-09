@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AuditLog {
+  id         String     @id @default(uuid())
+  actorId    String?
+  actionType ActionType
+  entityType EntityType
+  entityId   String
+  details    Json?
+  ipAddress  String?
+  userAgent  String?
+  status     String
+  metadata   Json?
+  createdAt  DateTime   @default(now())
+  actor      User?      @relation("UserAuditLogs", fields: [actorId], references: [id])
+
+  @@index([actorId])
+  @@index([actionType])
+  @@index([entityType])
+  @@index([createdAt])
+}
+
+model User {
+  id             String     @id @default(uuid())
+  username       String     @unique
+  password       String
+  type           UserType
+  isActive       Boolean    @default(true)
+  expirationDate DateTime?
+  lastLogin      DateTime?
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+  auditLogs      AuditLog[] @relation("UserAuditLogs")
+}
+
+enum ActionType {
+  LOGIN
+  LOGOUT
+  CREATE
+  UPDATE
+  DELETE
+  PASSWORD_CHANGE
+  FAILED_LOGIN_ATTEMPT
+  TOKEN_EXPIRED
+}
+
+enum EntityType {
+  USER
+}
+
+enum UserType {
+  ADMIN
+  USER
+}
