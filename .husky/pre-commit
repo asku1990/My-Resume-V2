@@ -1,10 +1,14 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# First check if there are formatting issues
-echo "🔍 Checking formatting..."
-pnpm format:check || (echo "❌ Formatting issues found. Please run 'pnpm format' and stage your changes." && exit 1)
+echo "🎭 Running pre-commit checks..."
 
-# If formatting is good, run type checking and other lint checks
-echo "✨ Running type and lint checks..."
-pnpm type-check && pnpm lint-staged
+# Run lint-staged (includes prettier, eslint, and type-check for staged files)
+echo "✨ Formatting and linting staged files..."
+pnpm lint-staged || exit 1
+
+# Run additional type checking on the entire project
+echo "📝 Running full type check..."
+pnpm type-check || exit 1
+
+echo "✅ All pre-commit checks passed!"

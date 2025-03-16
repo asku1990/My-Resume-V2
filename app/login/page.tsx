@@ -3,24 +3,50 @@
 import { useState, useEffect, Suspense } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { toast } from 'sonner';
+import { LoginDialog } from '@/components/auth/login-dialog';
+import { HeroSection } from '@/components/landing/hero-section';
+import { FeatureGrid } from '@/components/landing/feature-grid';
+
+const features = [
+  {
+    title: 'Professional Experience',
+    description:
+      'Discover my journey through various roles and responsibilities',
+  },
+  {
+    title: 'Skills & Expertise',
+    description: 'Explore my technical skills and professional competencies',
+  },
+  {
+    title: 'Projects & Achievements',
+    description: 'View my portfolio of successful projects and accomplishments',
+  },
+];
 
 function LoginContent() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
+    // Show development notice when component mounts
+    toast.message('Development Notice', {
+      description:
+        'This site is under development. Content and features are for demonstration purposes.',
+      duration: 6000,
+    });
+
     if (status === 'authenticated') {
       const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard';
       router.push(callbackUrl);
     }
   }, [status, router, searchParams]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (username: string, password: string) => {
+    setIsLoading(true);
 
     const result = await signIn('credentials', {
       username,
@@ -29,64 +55,56 @@ function LoginContent() {
       callbackUrl: '/dashboard',
     });
 
+    setIsLoading(false);
+
     if (result?.error) {
-      setError('Invalid credentials');
+      toast.error('Authentication failed', {
+        description: 'Invalid credentials. Please try again.',
+      });
     } else {
+      toast.success('Login successful', {
+        description: 'Redirecting to dashboard...',
+      });
+      setIsOpen(false);
       router.push('/dashboard');
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-lg shadow-md w-96"
-      >
-        <h1 className="text-2xl font-bold text-center">My Resume</h1>
-        <p className="text-sm mb-8 text-center">Login</p>
+    <div className="min-h-screen relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:60px_60px]" />
 
-        {error && (
-          <div className="bg-red-100 text-red-600 p-3 rounded mb-4">
-            {error}
-          </div>
-        )}
+      {/* Content */}
+      <div className="relative z-10 container mx-auto px-4 py-20 min-h-screen flex flex-col items-center justify-center text-white">
+        <HeroSection
+          title="Welcome to My Professional Journey"
+          description="Explore my skills, experiences, and achievements through this interactive resume platform. Login to access the full experience and discover more about my professional story."
+          onLoginClick={() => setIsOpen(true)}
+        />
 
-        <div className="mb-4">
-          <label className="block mb-2">Username</label>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
+        <LoginDialog
+          isOpen={isOpen}
+          onOpenChange={setIsOpen}
+          onSubmit={handleSubmit}
+          isLoading={isLoading}
+        />
 
-        <div className="mb-6">
-          <label className="block mb-2">Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 border rounded"
-            required
-          />
-        </div>
-
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Login
-        </button>
-      </form>
+        <FeatureGrid features={features} />
+      </div>
     </div>
   );
 }
 
 export default function LoginPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      }
+    >
       <LoginContent />
     </Suspense>
   );

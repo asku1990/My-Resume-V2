@@ -15,10 +15,12 @@ export type AuditUserLoginFn = (
   success: boolean,
   metadata?: any
 ) => Promise<any>;
+
 export type AuditUserLogoutFn = (
   userId: string,
   metadata?: any
 ) => Promise<any>;
+
 export type AuditUserActionFn = (
   actionType: ActionType,
   actorId: string,
@@ -26,6 +28,7 @@ export type AuditUserActionFn = (
   targetEntityId: string,
   metadata?: any
 ) => Promise<any>;
+
 export type AuditFailedLoginAttemptFn = (
   username: string,
   details?: any
