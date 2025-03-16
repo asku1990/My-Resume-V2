@@ -13,7 +13,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky",
-    "check": "pnpm format:check && pnpm type-check && pnpm lint"
+    "check": "pnpm format && pnpm type-check && pnpm lint"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",

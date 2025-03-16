@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { LoginDialog } from '@/components/auth/login-dialog';
 import { HeroSection } from '@/components/landing/hero-section';
 import { FeatureGrid } from '@/components/landing/feature-grid';
+import { DevelopmentNotice } from '@/components/development-notice';
 
 const features = [
   {
@@ -32,13 +33,6 @@ function LoginContent() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    // Show development notice when component mounts
-    toast.message('Development Notice', {
-      description:
-        'This site is under development. Content and features are for demonstration purposes.',
-      duration: 6000,
-    });
-
     if (status === 'authenticated') {
       const callbackUrl = searchParams?.get('callbackUrl') || '/dashboard';
       router.push(callbackUrl);
@@ -72,6 +66,7 @@ function LoginContent() {
 
   return (
     <div className="min-h-screen relative bg-gradient-to-br from-blue-600 via-blue-700 to-blue-900">
+      <DevelopmentNotice />
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:60px_60px]" />
 
